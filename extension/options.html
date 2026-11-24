@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>翻譯服務設定 · 雙語讀</title>
+  <link rel="stylesheet" href="options.css">
+  <script src="config.js" defer></script>
+  <script src="options.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark" aria-hidden="true"><span>En</span><span>文</span></div><div><strong>雙語讀</strong><small>PARALLEL READ</small></div></div>
+    <a class="demo-link" href="demo.html" target="_blank" rel="noreferrer">開啟試讀範例 <span aria-hidden="true">↗</span></a>
+  </header>
+  <main class="workspace">
+    <section class="page-intro"><p class="eyebrow">TRANSLATION · SETTINGS</p><h1>選擇翻譯服務</h1><p>兩種都不需要付費。預設的 Google 翻譯不用金鑰；若想要參考前後文、用詞更一致的 AI 翻譯，可改用 Gemini 免費金鑰。</p></section>
+    <div class="settings-grid">
+      <section class="settings-card" aria-labelledby="settings-title">
+        <div class="card-heading"><div><p class="section-step">01 / 翻譯服務</p><h2 id="settings-title">目前使用的服務</h2></div><span id="credential-state" class="credential-state">讀取中</span></div>
+        <form id="settings-form" novalidate aria-busy="true">
+          <fieldset class="engine-choice">
+            <legend class="visually-hidden">翻譯服務</legend>
+            <label class="engine-option" for="engine-google">
+              <input id="engine-google" type="radio" name="engine" value="google" disabled>
+              <span class="engine-text"><strong>Google 翻譯 <em>預設 · 免金鑰</em></strong>
+                <span>不需帳號或金鑰，裝好即可用。使用 Google 翻譯網頁工具的公開介面 <code>translate.googleapis.com</code>，<b>不是有服務保證的正式 API</b>：沒有公開額度，短時間翻譯大量段落時可能被暫時限制。逐段翻譯，不參考前後文。</span></span>
+            </label>
+            <label class="engine-option" for="engine-gemini">
+              <input id="engine-gemini" type="radio" name="engine" value="gemini" disabled>
+              <span class="engine-text"><strong>Gemini AI <em>需免費 API 金鑰</em></strong>
+                <span>參考網頁標題、章節與前後段落，每次批次翻譯數段，代名詞與術語較一致。需在 Google AI Studio 建立金鑰；免費額度依專案而定，用完會停止。免費方案的內容可能被 Google 用於改善產品。</span></span>
+            </label>
+          </fieldset>
+
+          <div id="gemini-settings" class="gemini-settings" hidden>
+            <div class="field-heading"><label for="model">模型</label><a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noreferrer">官方價格與免費方案 ↗</a></div>
+            <select id="model" disabled></select>
+            <p class="field-help">兩者皆為官方價格表列有免費方案的模型（2026-11-08 核對）。Flash 品質優先；Flash-Lite 較快、較省額度。實際額度請到 AI Studio 查看。</p>
+            <div class="field-heading"><label for="api-key">API Key</label><a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer">前往取得金鑰 ↗</a></div>
+            <input id="api-key" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off" placeholder="貼上 Gemini API Key" aria-describedby="key-help" disabled>
+            <p id="key-help" class="field-help">請使用未啟用帳單的免費方案專案金鑰。</p>
+            <label class="confirmation" for="free-tier-confirmed"><input id="free-tier-confirmed" type="checkbox" disabled><span>我已確認金鑰所屬專案是免費方案（Free），且未啟用帳單。</span></label>
+            <p class="billing-note">擴充功能無法查核帳單；若填入已開通付費的專案金鑰，Google 仍會計費。本擴充功能不會啟用帳單，也不會自動改用付費模型。</p>
+          </div>
+
+          <div class="actions"><button id="save-settings" class="primary-button" type="submit" disabled>保存設定</button><button id="test-connection" class="secondary-button" type="button" disabled>測試翻譯</button></div>
+          <p class="test-note">「測試翻譯」會用已保存的服務翻譯一句固定英文；保存設定本身不會送出任何文字。</p>
+          <p id="success-message" class="message success" role="status" aria-live="polite" hidden></p>
+          <p id="error-message" class="message error" role="alert" hidden></p>
+          <div id="test-result" class="test-result" hidden><span id="test-result-label">測試譯文</span><p id="test-source" lang="en"></p><p id="test-result-text"></p></div>
+          <div id="key-management" class="key-management" hidden><span>更換金鑰時，直接貼上新的金鑰並保存。</span><button id="clear-key" class="clear-button" type="button" disabled>清除金鑰</button></div>
+        </form>
+      </section>
+      <aside class="guidance" aria-label="免費方案使用說明">
+        <p class="section-step">如何選擇</p><h2>先用 Google 翻譯，<br>需要時再換 Gemini。</h2>
+        <ol class="steps"><li><span>01</span><div><strong>Google 翻譯</strong>不需任何設定，適合日常閱讀。若出現「暫時限制請求」，等幾分鐘再按「重新嘗試」。</div></li><li><span>02</span><div><strong>Gemini</strong>：在 <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer">Google AI Studio</a> 建立金鑰，到<a href="https://aistudio.google.com/projects" target="_blank" rel="noreferrer">專案頁面</a>確認是免費方案、未啟用帳單，不要點「Set up billing」。</div></li><li><span>03</span><div>把金鑰貼在左側、勾選確認並保存，再按「測試翻譯」。金鑰只在這個設定頁輸入，請不要貼到聊天或網頁裡。</div></li></ol>
+        <div class="guidance-note"><strong>聊天會員與 API 分開</strong><p>Gemini、ChatGPT、Claude 等聊天服務的付費會員，不等於 API 金鑰或 API 額度。本擴充功能不會讀取你的登入狀態或 Cookie。</p></div>
+        <div class="guidance-note"><strong>額度與內容</strong><p>免費不等於無限制，也不保證永久免費。額度用完或被限制時，翻譯會停下並說明原因，不會自動重試或改用付費服務。</p><p>兩種服務都會把英文段落送到 Google。請不要用來翻譯機密內容。</p></div>
+      </aside>
+    </div>
+    <footer class="privacy-note"><span aria-hidden="true">◇</span><p>API Key 只保存在這個 Chrome 設定檔的本機擴充功能儲存區（不是加密保管庫），不會同步、不會寫入安裝包，也不會交給網頁內容程式；只由背景程式放在送往 Google Gemini 的請求標頭中。翻譯時傳送英文段落；使用 Gemini 時另附網頁標題、章節標題與前後段落摘錄。不傳送網址或 Cookie。</p></footer>
+  </main>
+</body>
+</html>

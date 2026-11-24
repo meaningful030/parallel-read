@@ -1,0 +1,71 @@
+{
+  "engine": "google translate_a/t via extension/engine.js 0.3.1",
+  "input": "math-old-segments.json",
+  "date": "2026-11-16T10:59:17.902Z",
+  "requests": 2,
+  "out": [
+    {
+      "source": "Practice problem 2",
+      "result": {
+        "ok": true,
+        "text": "練習題2"
+      }
+    },
+    {
+      "source": "Approximately what percent of these trees have a diameter between and centimeters?",
+      "result": {
+        "ok": true,
+        "text": "這些樹中直徑在 1 到 1 公分之間的樹木大約佔百分之多少？"
+      }
+    },
+    {
+      "source": "About of the values lie within standard deviations of the mean.",
+      "result": {
+        "ok": true,
+        "text": "大約 的值位於平均值的標準差之內。"
+      }
+    },
+    {
+      "source": "If , then is greater than .",
+      "result": {
+        "ok": true,
+        "text": "如果 ，則大於 。"
+      }
+    },
+    {
+      "source": "The sample mean does not change when you reorder the data.",
+      "result": {
+        "ok": true,
+        "text": "當您對資料重新排序時，樣本平均值不會改變。"
+      }
+    },
+    {
+      "source": "The standard error is where is the sample size.",
+      "result": {
+        "ok": true,
+        "text": "標準誤差是樣本量。"
+      }
+    },
+    {
+      "source": "trees were measured in each plot.",
+      "result": {
+        "ok": true,
+        "text": "對每個地塊中的樹木進行了測量。"
+      }
+    },
+    {
+      "source": "The temperature fell to degrees, not degrees.",
+      "result": {
+        "ok": true,
+        "text": "溫度降到了幾度，而不是幾度。"
+      }
+    },
+    {
+      "source": "The density decays like when is large.",
+      "result": {
+        "ok": true,
+        "text": "密度像大時一樣衰減。"
+      }
+    }
+  ]
+}

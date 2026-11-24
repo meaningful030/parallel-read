@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>雙語讀 · Parallel Read</title>
+    <link rel="stylesheet" href="popup.css">
+    <script src="popup.js" defer></script>
+  </head>
+  <body>
+    <main class="popup">
+      <header class="brand">
+        <div class="brand-mark" aria-hidden="true"><span>En</span><span>文</span></div>
+        <div class="brand-name"><h1>雙語讀</h1><p>PARALLEL READ</p></div>
+        <span id="edition" class="edition">讀取中</span>
+      </header>
+
+      <section class="intro" aria-labelledby="intro-title">
+        <p class="eyebrow"><span>ENGLISH</span><span class="arrow" aria-hidden="true">→</span><span>繁體中文</span></p>
+        <h2 id="intro-title">讀懂英文，也留住原文。</h2>
+        <p class="description">英文在上，中文在下。<br>就在原本的網頁，逐段對照閱讀。</p>
+      </section>
+
+      <section class="reading-sample" aria-label="雙語閱讀效果示意">
+        <div class="sample-label"><span class="sample-dot" aria-hidden="true"></span>對照閱讀示意</div>
+        <p class="sample-original" lang="en">A little understanding opens<br>a whole new world.</p>
+        <p class="sample-translation">多一點理解，<br>就能看見全新的世界。</p>
+      </section>
+
+      <section class="controls" aria-label="網頁翻譯控制">
+        <div class="status-row" role="status" aria-live="polite" aria-atomic="true">
+          <span id="status-dot" class="status-dot" aria-hidden="true"></span>
+          <span id="status">準備好，開始閱讀。</span>
+          <span id="count" class="count"></span>
+        </div>
+        <div id="progress-track" class="progress-track" hidden><div id="progress" class="progress"></div></div>
+        <p id="error" class="error" role="alert" hidden></p>
+        <div id="actions" class="actions"><button id="translate" class="primary" type="button">
+          <svg id="translate-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5h12M10 3v2m4 0c-.8 5-4 8.5-9 11m1-8c1.5 3.5 4 6 7 7m1 5 4-10 4 10m-6.8-3h5.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="button-label">翻譯這個網頁</span>
+        </button><button id="restore" class="restore-button" type="button" hidden>還原網頁</button></div>
+        <p id="hint" class="hint">保留原文與連結，隨時可以還原。</p>
+      </section>
+
+      <footer>
+        <p id="privacy" class="privacy">翻譯時，英文段落會傳送到所選的翻譯服務。</p>
+        <div class="footer-links"><button id="settings" class="text-button" type="button">翻譯服務設定</button><button id="demo" class="text-button" type="button">試讀範例 <span aria-hidden="true">↗</span></button></div>
+      </footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parallel Read content-script harness</title>
+  <link rel="stylesheet" href="../../extension/content.css">
+  <style>
+    body { font: 17px/1.6 Georgia, serif; max-width: 720px; margin: 2rem auto; padding: 0 16px; }
+    code, kbd { font: 14px Consolas, monospace; background: #f2f2f2; }
+    .tags { display: flex; gap: 8px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    #results { white-space: pre-wrap; font: 12px Consolas, monospace; background: #f7f7f7; padding: 8px; }
+  </style>
+</head>
+<body>
+  <!--
+    Runs the REAL extension/content.js in Chromium with a stubbed chrome.runtime.
+    It checks paragraph extraction, placement, restore, late replies and pausing.
+    It does NOT exercise the real background service worker, network or Chrome's
+    extension loader. Serve the project folder over http://localhost and open this page.
+  -->
+  <pre id="results" data-parallel-read-ignore>running…</pre>
+  <div id="stage"></div>
+  <script>
+    "use strict";
+    const harness = { mode: "ok", delay: 5, revision: "rev-A", sent: [], configCalls: 0 };
+    function restore(segment) {
+      return segment.text.replace(/\[\[(\d+)\]\]/g, (m, d) => segment.literals[Number(d)]);
+    }
+    window.chrome = {
+      runtime: {
+        id: "harness-extension",
+        onMessage: { addListener(listener) { harness.listener = listener; } },
+        openOptionsPage() {},
+        async sendMessage(message) {
+          if (message.type === "PR_GET_PUBLIC_CONFIG") {
+            harness.configCalls += 1;
+            return { ok: true, ready: true, revision: harness.revision, engineLabel: "測試引擎", batch: { maxSegments: 8, maxChars: 4000 } };
+          }
+          if (message.type !== "PR_TRANSLATE") return { ok: false };
+          harness.sent.push(JSON.parse(JSON.stringify(message)));
+          await new Promise(resolve => setTimeout(resolve, harness.delay));
+          if (harness.mode === "rate") return { ok: false, code: "RATE_LIMITED", error: "測試：服務限流。" };
+          if (message.revision !== harness.revision) return { ok: false, code: "SETTINGS_CHANGED", error: "測試：設定已變更。" };
+          return { ok: true, results: message.segments.map(segment => ({ ok: true, text: "〔譯〕" + restore(segment) })) };
+        }
+      }
+    };
+  </script>
+  <script>
+    "use strict";
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+    const OWN = "[data-parallel-read-translation]";
+    const checks = [];
+    function check(name, condition, detail = "") { checks.push({ name, pass: Boolean(condition), detail: condition ? "" : String(detail) }); }
+    function send(type) { return new Promise(resolve => { const r = harness.listener({ type }, { id: "harness-extension" }, resolve); if (r !== true) {} }); }
+    async function settle() {
+      for (let i = 0; i < 200; i += 1) {
+        const state = await send("PR_STATUS");
+        if (!state.running) return state;
+        await sleep(20);
+      }
+      return send("PR_STATUS");
+    }
+    async function translateAll() {
+      let state = await send("PR_START");
+      for (let y = 0; y <= document.body.scrollHeight; y += 400) {
+        window.scrollTo(0, y); dispatchEvent(new Event("scroll"));
+        await sleep(120); state = await settle();
+      }
+      window.scrollTo(0, 0);
+      return settle();
+    }
+    const sentTexts = () => harness.sent.flatMap(m => m.segments.map(s => s.text));
+    const caseBlock = name => document.querySelector(`[data-case="${name}"]`);
+    const ownIn = element => [...element.children].filter(child => child.matches(OWN));
+
+    async function run() {
+      const html = await (await fetch("../fixtures/representative.html")).text();
+      const fixture = new DOMParser().parseFromString(html, "text/html");
+      document.title = fixture.title;
+      for (const node of [...fixture.body.childNodes]) document.getElementById("stage").append(document.importNode(node, true));
+      const originalText = document.getElementById("stage").textContent;
+      await new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "../../extension/content.js?" + Date.now();
+        script.onload = resolve; script.onerror = reject;
+        document.head.append(script);
+      });
+
+      // 1. Extraction: whole sentences, code kept as placeholders, hidden text left out.
+      let state = await translateAll();
+      const texts = sentTexts();
+      const find = prefix => harness.sent.flatMap(m => m.segments).find(s => s.text.startsWith(prefix));
+      const code = find("Call ");
+      check("行內 code 不切斷句子", code && code.text === "Call [[0]] with the [[1]] option so that the request can be cancelled when the user navigates away.", JSON.stringify(code));
+      check("程式碼以佔位符保留原文", code && JSON.stringify(code.literals) === JSON.stringify(["fetch()", "signal"]), JSON.stringify(code?.literals));
+      const kbd = find("Press ");
+      check("kbd 與 code 混排保持一句", kbd && kbd.text === "Press [[0]]+[[1]]+[[2]], type [[3]], and then run [[4]] again." && kbd.literals.join("|") === "Ctrl|Shift|P|Reload Window|npm install --save-dev eslint", JSON.stringify(kbd));
+      const hidden = find("Click the gear icon");
+      check("視覺隱藏與 display:none 文字不送出、不切句", hidden && hidden.text === "Click the gear icon to open the panel, then choose a language.", JSON.stringify(hidden));
+      const icon = find("Researchers found");
+      check("aria-hidden 圖示不切斷句子", icon && icon.text === "Researchers found no evidence[3] that the supplement improves memory in healthy adults although the study was small and lasted only 12 weeks.", JSON.stringify(icon));
+      check("換行 <br> 保留為換行", texts.includes("Ships in 3–5 business days.\nFree returns within 30 days."), JSON.stringify(texts.filter(t => t.startsWith("Ships"))));
+      check("巢狀清單父項與子項分開", texts.includes("Back up your photos before you reset the device.") && texts.includes("Use an external drive with at least 64 GB of free space."));
+      check("導覽列、pre 程式碼區塊與單字標籤不翻譯", !texts.some(t => /^(Home|World|Technology|Cities|Semiconductors)$/.test(t) || t.includes("AbortController")), JSON.stringify(texts));
+      check("沒有不完整的碎片（每段只送一次）", new Set(texts).size === texts.length && texts.every(t => t.split(/\s+/).length >= 2 || /^Field notes/.test(t)), JSON.stringify(texts));
+      const blocks = [...document.querySelectorAll("[data-case]")];
+      check("每個段落恰好一個譯文", blocks.every(block => ownIn(block).length === 1), blocks.filter(b => ownIn(b).length !== 1).map(b => b.dataset.case + ":" + ownIn(b).length).join(", "));
+      const codeTranslation = ownIn(caseBlock("inline-code"))[0];
+      check("譯文還原程式碼原文並放在段落最後", codeTranslation && codeTranslation.textContent === "〔譯〕Call fetch() with the signal option so that the request can be cancelled when the user navigates away." && caseBlock("inline-code").lastElementChild === codeTranslation, codeTranslation?.textContent);
+      check("連結與格式仍在原處", caseBlock("link-emphasis").querySelector("a[href='#notes']") && caseBlock("link-emphasis").querySelector("em").textContent === "not");
+      check("進度統計正確", state.active && state.translated === state.total && state.failed === 0 && !state.running, JSON.stringify(state));
+      const context = harness.sent.find(m => m.segments.some(s => s.text.startsWith("Store the token")))?.context;
+      check("提供標題與章節前後文", context && context.title === "Field notes on cities, chips and code" && context.section === "Field notes on cities, chips and code", JSON.stringify(context));
+
+      // 2. Dynamic content: new paragraph translated once, no duplicates on rescans.
+      const added = document.createElement("p");
+      added.dataset.case = "dynamic";
+      added.textContent = "A paragraph that was added after the page finished loading.";
+      document.querySelector("article").append(added);
+      added.scrollIntoView(); dispatchEvent(new Event("scroll"));
+      await sleep(400); await settle();
+      document.querySelector("article").append(document.createElement("div"));
+      await sleep(400); state = await settle();
+      check("動態新增段落會翻譯", ownIn(added).length === 1 && ownIn(added)[0].textContent.startsWith("〔譯〕A paragraph"));
+      check("重新掃描不產生重複譯文", blocks.every(block => ownIn(block).length === 1));
+
+      // 3. Restore removes every translation and leaves the original intact.
+      state = await send("PR_STOP");
+      check("還原後沒有任何譯文", document.querySelectorAll(OWN).length === 0 && !state.active);
+      added.remove();
+      document.querySelector("article").lastElementChild.remove();
+      check("還原後原文完全不變", document.getElementById("stage").textContent === originalText);
+
+      // 4. Late replies after restore must not insert translations.
+      harness.delay = 400;
+      const before = harness.sent.length;
+      send("PR_START");
+      await sleep(120);
+      await send("PR_STOP");
+      await sleep(700);
+      check("還原後晚到的回應不會插入譯文", harness.sent.length > before && document.querySelectorAll(OWN).length === 0, `${harness.sent.length - before} sent, ${document.querySelectorAll(OWN).length} inserted`);
+
+      // 5. Rate limiting pauses after the first failed batch; no automatic retries.
+      harness.delay = 5; harness.mode = "rate";
+      const beforeRate = harness.sent.length;
+      await send("PR_START");
+      await sleep(600);
+      state = await settle();
+      check("限流時暫停且只送出一次請求", harness.sent.length - beforeRate === 1 && state.error.includes("限流") && !state.running, `${harness.sent.length - beforeRate} requests, ${JSON.stringify(state)}`);
+      window.scrollTo(0, document.body.scrollHeight); dispatchEvent(new Event("scroll")); await sleep(300);
+      check("暫停後捲動也不會再送請求", harness.sent.length - beforeRate === 1);
+
+      // 6. Retry after the limit clears translates the rest.
+      harness.mode = "ok";
+      state = await translateAll();
+      check("重新嘗試後完成翻譯", state.translated === state.total && state.failed === 0 && !state.error, JSON.stringify(state));
+
+      // 7. Changed settings: queued work is refused, the retry starts over with new settings.
+      harness.revision = "rev-B";
+      const beforeChange = harness.sent.length;
+      const oldElements = [...document.querySelectorAll(OWN)];
+      state = await translateAll();
+      const resent = harness.sent.slice(beforeChange);
+      check("設定變更後重新開始：移除舊譯文並以新設定重送", oldElements.every(el => !el.isConnected) && resent.length > 0 && resent.every(m => m.revision === "rev-B") && state.translated === state.total, `${resent.length} batches, ${JSON.stringify(state)}`);
+      await send("PR_STOP");
+
+      const failed = checks.filter(c => !c.pass);
+      document.getElementById("results").textContent = `${checks.length - failed.length}/${checks.length} passed\n` + checks.map(c => `${c.pass ? "PASS" : "FAIL"} ${c.name}${c.detail ? "  → " + c.detail : ""}`).join("\n");
+      window.__results = { passed: checks.length - failed.length, total: checks.length, failed, requests: harness.sent.length };
+    }
+    run().catch(error => { document.getElementById("results").textContent = "ERROR " + error.stack; window.__results = { error: String(error.stack) }; });
+  </script>
+</body>
+</html>

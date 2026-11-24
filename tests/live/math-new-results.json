@@ -1,0 +1,71 @@
+{
+  "engine": "google translate_a/t via extension/engine.js 0.3.1",
+  "input": "math-new-segments.json",
+  "date": "2026-11-16T11:00:20.221Z",
+  "requests": 2,
+  "out": [
+    {
+      "source": "Practice problem 2",
+      "result": {
+        "ok": true,
+        "text": "練習題2"
+      }
+    },
+    {
+      "source": "Approximately what percent of these trees have a diameter between 90 and 210 centimeters?",
+      "result": {
+        "ok": true,
+        "text": "這些樹的直徑在 90 到 210 公分之間的比例大約是多少？"
+      }
+    },
+    {
+      "source": "About 50% of the values lie within 1.5 standard deviations of the mean.",
+      "result": {
+        "ok": true,
+        "text": "大約 50% 的數值位於平均值的 1.5 個標準差之內。"
+      }
+    },
+    {
+      "source": "If x > 3, then x² is greater than 9.",
+      "result": {
+        "ok": true,
+        "text": "如果 x > 3，則 x² 大於 9。"
+      }
+    },
+    {
+      "source": "The sample mean x̄ = 1/n ∑_(i = 1)^n x_i does not change when you reorder the data.",
+      "result": {
+        "ok": true,
+        "text": "當您對資料重新排序時，樣本平均值 x̄ = 1/n ∑_(i = 1)^n x_i 不會改變。"
+      }
+    },
+    {
+      "source": "The standard error is SE = σ/√n where n is the sample size.",
+      "result": {
+        "ok": true,
+        "text": "標準誤差為 SE = σ/√n，其中 n 為樣本大小。"
+      }
+    },
+    {
+      "source": "n trees were measured in each plot.",
+      "result": {
+        "ok": true,
+        "text": "每個地塊中測量了 n 棵樹。"
+      }
+    },
+    {
+      "source": "The temperature fell to −3 degrees, not 3 degrees.",
+      "result": {
+        "ok": true,
+        "text": "溫度降至-3度，而不是3度。"
+      }
+    },
+    {
+      "source": "The density decays like e^(−x) when x is large.",
+      "result": {
+        "ok": true,
+        "text": "當 x 很大時，密度像 e^(−x) 一樣衰減。"
+      }
+    }
+  ]
+}

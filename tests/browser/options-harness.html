@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Options page harness</title>
+  <link rel="stylesheet" href="../../extension/options.css">
+</head>
+<body>
+  <!-- Loads the real options.html markup + config.js + options.js with a stubbed
+       chrome API (no real storage, permissions or network). UI smoke test only. -->
+  <script>
+    "use strict";
+    const harness = { messages: [], permissionRequests: [], saved: { engine: "google", gemini: { model: "gemini-3.8-flash", hasKey: false, freeTierConfirmed: false } } };
+    window.chrome = {
+      permissions: { request: async request => { harness.permissionRequests.push(request); return true; } },
+      runtime: {
+        async sendMessage(message) {
+          harness.messages.push(JSON.parse(JSON.stringify(message)));
+          if (message.type === "PR_GET_SETTINGS") return { ok: true, settings: { ...harness.saved, models: [{ id: "gemini-3.8-flash", label: "Gemini 3.8 Flash（品質優先）" }, { id: "gemini-3.5-flash-lite", label: "Gemini 3.5 Flash-Lite（速度優先）" }] } };
+          if (message.type === "PR_SAVE_SETTINGS") return { ok: true, publicConfig: { engineLabel: message.settings.engine === "gemini" ? "Gemini 3.8 Flash（品質優先）" : "Google 翻譯（免金鑰）" } };
+          if (message.type === "PR_TEST_CONNECTION") return { ok: true, source: "If the update fails, your saved files will not be deleted.", text: "如果更新失敗，您儲存的檔案不會被刪除。", engineLabel: "Google 翻譯（免金鑰）" };
+          if (message.type === "PR_CLEAR_KEY") return { ok: true };
+          return { ok: false, error: "unexpected" };
+        }
+      }
+    };
+  </script>
+  <script>
+    "use strict";
+    (async () => {
+      const html = await (await fetch("../../extension/options.html")).text();
+      const page = new DOMParser().parseFromString(html, "text/html");
+      document.body.append(...[...page.body.childNodes].map(node => document.importNode(node, true)));
+      for (const file of ["config.js", "options.js"]) {
+        await new Promise((resolve, reject) => { const s = document.createElement("script"); s.src = "../../extension/" + file; s.onload = resolve; s.onerror = reject; document.head.append(s); });
+      }
+    })();
+  </script>
+</body>
+</html>

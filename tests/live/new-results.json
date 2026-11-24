@@ -1,0 +1,133 @@
+{
+  "engine": "google translate_a/t via extension/engine.js 0.3.0",
+  "date": "2026-11-08T09:35:43.394Z",
+  "requests": 3,
+  "out": [
+    {
+      "source": "Field notes on cities, chips and code",
+      "result": {
+        "ok": true,
+        "text": "關於城市、晶片和程式碼的現場筆記"
+      }
+    },
+    {
+      "source": "The update does not remove your saved files, but it no longer syncs them automatically unless you turn the feature back on.",
+      "result": {
+        "ok": true,
+        "text": "此更新不會刪除您已儲存的文件，但除非您重新開啟該功能，否則它不再自動同步它們。"
+      }
+    },
+    {
+      "source": "If the battery drops below 20 percent, the phone switches to low-power mode; otherwise, background apps continue to refresh as usual.",
+      "result": {
+        "ok": true,
+        "text": "如果電池電量低於20%，手機會切換到低電量模式；否則，背景應用程式會像往常一樣繼續刷新。"
+      }
+    },
+    {
+      "source": "When the city council met with the transit agency, it agreed to delay the fare increase until the agency published its annual audit.",
+      "result": {
+        "ok": true,
+        "text": "當市議會與交通機構會面時，同意延後加價，直到該機構公佈年度審計結果。"
+      }
+    },
+    {
+      "source": "The European Central Bank held interest rates at 2.25% on Thursday, saying inflation in the euro area had eased to 2.1% in October from 2.4% a month earlier.",
+      "result": {
+        "ok": true,
+        "text": "歐洲央行週四將利率維持在 2.25%，稱歐元區 10 月通膨率已從一個月前的 2.4% 降至 2.1%。"
+      }
+    },
+    {
+      "source": "Shares of the chipmaker fell as much as 8% in early trading after it cut its full-year forecast, citing weaker demand from data-center customers.",
+      "result": {
+        "ok": true,
+        "text": "該晶片製造商因資料中心客戶需求疲軟而下調全年預期，早盤交易中股價下跌 8%。"
+      }
+    },
+    {
+      "source": "The bridge is 1.2 km long, carries about 45,000 vehicles a day, and was designed to withstand winds of up to 180 km/h.",
+      "result": {
+        "ok": true,
+        "text": "該橋長 1.2 公里，每天可承載約 45,000 輛車輛，設計可承受高達 180 公里/小時的風速。"
+      }
+    },
+    {
+      "source": "Call fetch() with the signal option so that the request can be cancelled when the user navigates away.",
+      "result": {
+        "ok": true,
+        "text": "使用 signal 選項呼叫 fetch()，以便在使用者離開時可以取消請求。"
+      }
+    },
+    {
+      "source": "Press Ctrl+Shift+P, type Reload Window, and then run npm install --save-dev eslint again.",
+      "result": {
+        "ok": true,
+        "text": "按 Ctrl+Shift+P，鍵入 Reload Window，然後再執行 npm install --save-dev eslint。"
+      }
+    },
+    {
+      "source": "According to the official release notes, the feature is not available on devices running firmware older than version 4.2.",
+      "result": {
+        "ok": true,
+        "text": "根據官方發布說明，該功能在運行 4.2 版本之前版本韌體的裝置上不可用。"
+      }
+    },
+    {
+      "source": "Researchers found no evidence[3] that the supplement improves memory in healthy adults although the study was small and lasted only 12 weeks.",
+      "result": {
+        "ok": true,
+        "text": "研究人員發現沒有證據[3]表明該補充劑可以改善健康成年人的記憶力，儘管研究規模較小且僅持續了 12 週。"
+      }
+    },
+    {
+      "source": "Each access token expires after 60 minutes. A refresh token, by contrast, can be used to obtain a new access token without asking the user to sign in again.",
+      "result": {
+        "ok": true,
+        "text": "每個存取令牌將在 60 分鐘後過期。相比之下，重新整理令牌可用於取得新的存取令牌，而無需要求使用者再次登入。"
+      }
+    },
+    {
+      "source": "Store the token in memory rather than in local storage, because any script running on the page can read local storage.",
+      "result": {
+        "ok": true,
+        "text": "將令牌儲存在記憶體中而不是本機儲存中，因為頁面上執行的任何腳本都可以讀取本機儲存。"
+      }
+    },
+    {
+      "source": "The lead engineer said the old pipes contained no lead, so the building did not need to be closed.",
+      "result": {
+        "ok": true,
+        "text": "首席工程師表示，舊管道不含鉛，因此建築物不需要關閉。"
+      }
+    },
+    {
+      "source": "Click the gear icon to open the panel, then choose a language.",
+      "result": {
+        "ok": true,
+        "text": "點擊齒輪圖示打開面板，然後選擇一種語言。"
+      }
+    },
+    {
+      "source": "Ships in 3–5 business days.\nFree returns within 30 days.",
+      "result": {
+        "ok": true,
+        "text": "3-5 個工作天內出貨。\n30 天內免費退貨。"
+      }
+    },
+    {
+      "source": "Back up your photos before you reset the device.",
+      "result": {
+        "ok": true,
+        "text": "在重置設備之前備份您的照片。"
+      }
+    },
+    {
+      "source": "Use an external drive with at least 64 GB of free space.",
+      "result": {
+        "ok": true,
+        "text": "使用至少有 64 GB 可用空間的外部硬碟。"
+      }
+    }
+  ]
+}

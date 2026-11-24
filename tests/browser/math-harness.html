@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Math rendering harness</title>
+  <link rel="stylesheet" href="../../extension/content.css">
+  <style>
+    body { font: 17px/1.6 Georgia, serif; max-width: 720px; margin: 2rem auto; padding: 0 16px; }
+    #results { white-space: pre-wrap; font: 12px Consolas, monospace; background: #f7f7f7; padding: 8px; }
+  </style>
+</head>
+<body>
+  <!--
+    Renders formulas with a real math library loaded from a CDN (pinned versions),
+    then runs the REAL extension/content.js with a stubbed chrome.runtime and checks
+    what text would be sent for translation. Choose the renderer with ?renderer=
+    katex | mathml | wikipedia | mathjax3 | mathjax3-svg | mathjax4 | mathjax2
+    It does NOT exercise the real background worker, network or Chrome's extension loader.
+  -->
+  <pre id="results" data-parallel-read-ignore>running…</pre>
+  <article id="stage">
+    <h2>Practice problem 2</h2>
+    <p data-case="numbers">Approximately what percent of these trees have a diameter between $90$ and $210$ centimeters?</p>
+    <p data-case="percent">About $50\%$ of the values lie within $1.5$ standard deviations of the mean.</p>
+    <p data-case="formula">If $x > 3$, then $x^2$ is greater than $9$.</p>
+    <p data-case="complex">The sample mean $\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$ does not change when you reorder the data.</p>
+    <p data-case="display">The standard error is $$SE = \frac{\sigma}{\sqrt{n}}$$ where $n$ is the sample size.</p>
+    <p data-case="leading">$n$ trees were measured in each plot.</p>
+    <p data-case="negative">The temperature fell to $-3$ degrees, not $3$ degrees.</p>
+    <p data-case="exponent">The density decays like $e^{-x}$ when $x$ is large.</p>
+    <div data-case="standalone">$$y = mx + b$$</div>
+  </article>
+  <script>
+    "use strict";
+    const harness = { sent: [] };
+    const restore = segment => segment.text.replace(/\[\[(\d+)\]\]/g, (m, d) => segment.literals[Number(d)]);
+    window.chrome = {
+      runtime: {
+        id: "harness-extension",
+        onMessage: { addListener(listener) { harness.listener = listener; } },
+        async sendMessage(message) {
+          if (message.type === "PR_GET_PUBLIC_CONFIG") return { ok: true, ready: true, revision: "rev-A", engineLabel: "測試引擎", batch: { maxSegments: 8, maxChars: 4000 } };
+          if (message.type !== "PR_TRANSLATE") return { ok: false };
+          harness.sent.push(JSON.parse(JSON.stringify(message)));
+          await new Promise(resolve => setTimeout(resolve, 5));
+          return { ok: true, results: message.segments.map(segment => ({ ok: true, text: "〔譯〕" + restore(segment) })) };
+        }
+      }
+    };
+  </script>
+  <script>
+    "use strict";
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+    const OWN = "[data-parallel-read-translation]";
+    const stage = document.getElementById("stage");
+    const renderer = new URLSearchParams(location.search).get("renderer") || "katex";
+    const checks = [];
+    function check(name, condition, detail = "") { checks.push({ name, pass: Boolean(condition), detail: condition ? "" : String(detail) }); }
+    const send = type => new Promise(resolve => harness.listener({ type }, { id: "harness-extension" }, resolve));
+    const load = src => new Promise((resolve, reject) => { const s = document.createElement("script"); s.src = src; s.onload = resolve; s.onerror = () => reject(new Error("load failed: " + src)); document.head.append(s); });
+    const css = href => new Promise(resolve => { const l = document.createElement("link"); l.rel = "stylesheet"; l.href = href; l.onload = l.onerror = resolve; document.head.append(l); });
+    const decode = html => { const t = document.createElement("textarea"); t.innerHTML = html; return t.value; };
+    const replaceTex = render => stage.querySelectorAll("[data-case]").forEach(block => {
+      block.innerHTML = block.innerHTML.replace(/\$\$([\s\S]+?)\$\$|\$([^$]+?)\$/g, (m, display, inline) => render(decode(display ?? inline), display !== undefined));
+    });
+    const escapeAttr = text => text.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    function mathmlOnly(tex, display) {
+      const wrap = document.createElement("span");
+      wrap.innerHTML = katex.renderToString(tex, { displayMode: display, output: "mathml", throwOnError: false });
+      const math = wrap.querySelector("math");
+      const semantics = math.querySelector("semantics");
+      if (semantics) { semantics.querySelector("annotation")?.remove(); semantics.replaceWith(...semantics.childNodes); }
+      if (display) math.setAttribute("display", "block");
+      return math;
+    }
+    const KATEX = "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/";
+    async function render() {
+      if (renderer === "katex" || renderer === "mathml" || renderer === "wikipedia") {
+        await css(KATEX + "katex.min.css");
+        await load(KATEX + "katex.min.js");
+        if (renderer === "katex") replaceTex((tex, display) => katex.renderToString(tex, { displayMode: display, throwOnError: false }));
+        if (renderer === "mathml") replaceTex((tex, display) => mathmlOnly(tex, display).outerHTML);
+        if (renderer === "wikipedia") replaceTex((tex, display) => {
+          const math = mathmlOnly(tex, display);
+          math.setAttribute("alttext", `{\\displaystyle ${tex}}`);
+          const kind = display ? "display" : "inline";
+          return `<span class="mwe-math-element"><span class="mwe-math-mathml-${kind} mwe-math-mathml-a11y" style="display: none;">${math.outerHTML}</span>`
+            + `<img class="mwe-math-fallback-image-${kind}" aria-hidden="true" alt="{\\displaystyle ${escapeAttr(tex)}}" style="width:2.2em;height:1.1em;vertical-align:-.3em" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='16'/%3E"></span>`;
+        });
+        return;
+      }
+      if (renderer.startsWith("mathjax3") || renderer === "mathjax4") {
+        window.MathJax = { tex: { inlineMath: [["$", "$"]], displayMath: [["$$", "$$"]] }, startup: { typeset: false } };
+        const output = renderer === "mathjax3-svg" ? "tex-svg.js" : "tex-chtml.js";
+        await load(renderer === "mathjax4" ? "https://cdn.jsdelivr.net/npm/mathjax@4.0.0/" + output : "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/" + output);
+        await MathJax.startup.promise;
+        await MathJax.typesetPromise([stage]);
+        return;
+      }
+      if (renderer === "mathjax2") {
+        window.MathJax = { skipStartupTypeset: true, tex2jax: { inlineMath: [["$", "$"]], displayMath: [["$$", "$$"]] } };
+        await load("https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS_CHTML");
+        await new Promise(resolve => MathJax.Hub.Queue(["Typeset", MathJax.Hub, stage], resolve));
+        return;
+      }
+      throw new Error("unknown renderer " + renderer);
+    }
+
+    async function run() {
+      await render();
+      await sleep(300);
+      const originalHTML = stage.innerHTML;
+      await new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        // ?content= loads another copy of content.js (for before/after comparisons).
+        script.src = (new URLSearchParams(location.search).get("content") || "../../extension/content.js") + "?" + Date.now();
+        script.onload = resolve; script.onerror = reject;
+        document.head.append(script);
+      });
+      await send("PR_START");
+      for (let i = 0; i < 100 && (await send("PR_STATUS")).running; i += 1) await sleep(20);
+      await sleep(200);
+      const segments = harness.sent.flatMap(m => m.segments);
+      const find = prefix => segments.find(s => s.text.startsWith(prefix));
+      const caseBlock = name => stage.querySelector(`[data-case="${name}"]`);
+      const own = name => [...caseBlock(name).querySelectorAll(OWN)];
+      const show = s => JSON.stringify(s ?? null);
+
+      const numbers = find("Approximately");
+      check("數字公式以純文字留在句中", numbers?.text === "Approximately what percent of these trees have a diameter between 90 and 210 centimeters?" && !numbers.literals?.length, show(numbers));
+      const percent = find("About");
+      check("百分比與小數留在句中", percent?.text === "About 50% of the values lie within 1.5 standard deviations of the mean." && !percent.literals?.length, show(percent));
+      const formula = find("If");
+      check("含變數的公式以佔位符保留", formula?.text === "If [[0]], then [[1]] is greater than 9." && formula.literals[0] === "x > 3" && formula.literals[1] === "x²", show(formula));
+      const complex = find("The sample mean");
+      check("複雜公式轉成可讀的線性文字", complex?.text === "The sample mean [[0]] does not change when you reorder the data." && complex.literals[0] === "x̄ = 1/n ∑_(i = 1)^n x_i", show(complex));
+      const display = find("The standard error");
+      check("段落中的獨立公式不切斷句子", display?.text === "The standard error is [[0]] where n is the sample size." && display.literals.join("|") === "SE = σ/√n", show(display));
+      const leading = segments.find(s => s.text.endsWith("trees were measured in each plot."));
+      check("段首的單一變數以純文字留在句中", leading?.text === "n trees were measured in each plot." && !leading.literals?.length, show(leading));
+      const negative = find("The temperature");
+      check("負號保留在數字上", negative?.text === "The temperature fell to −3 degrees, not 3 degrees." && !negative.literals?.length, show(negative));
+      const exponent = find("The density");
+      check("負指數以佔位符保留、單一變數留在句中", exponent?.text === "The density decays like [[0]] when x is large." && exponent.literals.join("|") === "e^(−x)", show(exponent));
+      check("只有公式的區塊不送翻譯", !segments.some(s => /y\s*=|mx/.test(s.text + (s.literals || []).join(" "))), show(segments.map(s => s.text)));
+      const cases = ["numbers", "percent", "formula", "complex", "display", "leading", "negative", "exponent"];
+      check("每段恰好一個譯文", cases.every(name => own(name).length === 1), cases.map(name => name + ":" + own(name).length).join(", "));
+      check("譯文含原本的數字", own("numbers")[0]?.textContent.includes("between 90 and 210"), own("numbers")[0]?.textContent);
+      await send("PR_STOP");
+      check("還原後公式與原文完全不變", stage.innerHTML === originalHTML && !document.querySelector(OWN));
+
+      const failed = checks.filter(c => !c.pass);
+      const sample = stage.querySelector("mjx-container, .katex, math, .mwe-math-element, .MathJax_CHTML, .MathJax, .MathJax_SVG");
+      document.getElementById("results").textContent = `${renderer}: ${checks.length - failed.length}/${checks.length} passed\n`
+        + checks.map(c => `${c.pass ? "PASS" : "FAIL"} ${c.name}${c.detail ? "  → " + c.detail : ""}`).join("\n");
+      window.__results = { renderer, passed: checks.length - failed.length, total: checks.length, failed, sent: segments.map(s => ({ text: s.text, literals: s.literals })), sampleRoot: sample ? sample.outerHTML.slice(0, 1500) : null };
+    }
+    run().catch(error => { document.getElementById("results").textContent = "ERROR " + error.stack; window.__results = { error: String(error.stack) }; });
+  </script>
+</body>
+</html>

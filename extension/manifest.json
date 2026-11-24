@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "雙語讀 · Parallel Read",
+  "version": "0.3.1",
+  "description": "英文在上，繁體中文在下。保留原文的精簡雙語網頁翻譯，可選免金鑰 Google 翻譯或 Gemini 免費金鑰。",
+  "minimum_chrome_version": "109",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://translate.googleapis.com/*"
+  ],
+  "optional_host_permissions": [
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "雙語讀 · 翻譯這個網頁",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

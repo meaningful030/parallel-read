@@ -1,0 +1,36 @@
+/* Only extension-owned elements are styled; the original page is untouched. */
+[data-parallel-read-translation] {
+  display: block !important;
+  box-sizing: border-box !important;
+  position: static !important;
+  float: none !important;
+  width: auto !important;
+  max-width: 100% !important;
+  margin: .48em 0 .8em !important;
+  padding: .08em 0 .08em .85em !important;
+  border: 0 !important;
+  border-left: 2px solid #65a894 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font-family: system-ui, -apple-system, "Noto Sans TC", "Microsoft JhengHei", sans-serif !important;
+  font-size: .95em !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  line-height: 1.8 !important;
+  letter-spacing: .025em !important;
+  text-align: start !important;
+  text-indent: 0 !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+  opacity: .88 !important;
+}
+[data-parallel-read-translation][data-state="loading"],
+[data-parallel-read-translation][data-state="error"] {
+  font-size: 13px !important;
+  opacity: .6 !important;
+}
+[data-parallel-read-translation][data-state="error"] {
+  border-left-color: #b67b65 !important;
+}

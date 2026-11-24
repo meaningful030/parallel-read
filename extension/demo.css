@@ -1,0 +1,47 @@
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+body { margin: 0; background: #f8f7f2; color: #283b35; -webkit-font-smoothing: antialiased; }
+.toolbar { position: sticky; top: 0; z-index: 10; min-height: 84px; padding: 17px max(32px, calc((100vw - 1160px) / 2)); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dfe4dc; background: #f8f7f2f5; backdrop-filter: blur(14px); font-family: system-ui, "Microsoft JhengHei", sans-serif; }
+.wordmark { display: flex; align-items: center; gap: 12px; color: #244f40; text-decoration: none; font-size: 18px; font-weight: 650; }
+.wordmark small { display: block; margin-top: 3px; font-size: 9px; font-weight: 500; letter-spacing: .16em; }
+.mark { width: 38px; height: 42px; border: 1px solid #9db9aa; border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; line-height: 1.2; }
+.mark span { margin-top: 3px; font-size: 14px; }
+.demo-actions { display: flex; gap: 9px; }
+button { min-height: 40px; padding: 10px 17px; border-radius: 7px; border: 1px solid #285943; background: #285943; color: white; font: 500 13px system-ui, "Microsoft JhengHei", sans-serif; cursor: pointer; transition: background .2s; }
+button:hover { background: #1d4433; }
+button:focus-visible, a:focus-visible { outline: 3px solid #bda476; outline-offset: 4px; }
+#demo-restore { color: #426052; background: transparent; border-color: #b7c5bb; }
+button:disabled { opacity: .4; cursor: default; }
+main { width: min(100% - 56px, 1050px); margin: auto; }
+.meta { display: flex; justify-content: space-between; margin: 43px 0 67px; font: 10px system-ui, sans-serif; letter-spacing: .15em; color: #7a8b80; }
+article { width: min(100%, 675px); margin: auto; }
+.article-label { margin-bottom: 24px; color: #758c76; font: 10px system-ui, sans-serif; letter-spacing: .15em; }
+h1 { margin: 0 0 24px; color: #254b3a; font: 400 clamp(42px, 5.2vw, 66px)/1.07 Georgia, "Times New Roman", serif; letter-spacing: -.045em; }
+p, li { font: 18px/1.85 Georgia, "Times New Roman", serif; color: #4a554e; }
+p { margin: 0 0 27px; }
+.standfirst { margin-top: 28px; color: #718173; font-size: 21px; line-height: 1.65; }
+.byline { display: flex; align-items: center; gap: 12px; margin: 34px 0; color: #788176; font: 11px system-ui, sans-serif; }
+.avatar { display: grid; place-items: center; width: 28px; height: 28px; background: #e5ebdf; border: 1px solid #d6dfcd; border-radius: 50%; font-family: Georgia, serif; color: #4d6c4a; }
+.byline-dot { color: #acb2a6; }
+.rule { height: 1px; background: #dce0d4; margin: 35px 0; }
+h2 { margin: 45px 0 22px; font: 400 31px/1.3 Georgia, "Times New Roman", serif; color: #325440; letter-spacing: -.025em; }
+blockquote { margin: 39px 0; padding: 3px 0 3px 25px; border-left: 2px solid #baad83; font: italic 26px/1.5 Georgia, serif; color: #5a7052; }
+li { padding-left: 5px; margin-bottom: 12px; }
+ul { padding-left: 21px; }
+.page-footer { margin: 90px 0 125px; padding-top: 24px; border-top: 1px solid #dce0d4; display: flex; justify-content: space-between; color: #8c968a; font: 11px system-ui, "Microsoft JhengHei", sans-serif; }
+.reading-status { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); padding: 12px 22px; background: #fffefbf5; border: 1px solid #dce3d7; border-radius: 12px; box-shadow: 0 4px 20px #20372a0a; text-align: center; color: #4c6758; font: 12px/1.6 system-ui, "Microsoft JhengHei", sans-serif; z-index: 20; }
+.reading-status small { display: block; margin-top: 3px; font-size: 10px; color: #90988a; }
+.live-dot { display: inline-block; width: 6px; height: 6px; margin-right: 7px; border-radius: 50%; background: #699b77; }
+@media (max-width: 600px) {
+  .toolbar { padding: 14px 20px; gap: 12px; }
+  .wordmark { gap: 8px; font-size: 15px; }
+  .wordmark small { font-size: 7px; }
+  .mark { width: 30px; height: 36px; }
+  button { padding: 8px 11px; font-size: 12px; }
+  .demo-actions { gap: 5px; }
+  .meta { margin: 30px 0 48px; font-size: 8px; }
+  p, li { font-size: 17px; }
+  .standfirst { font-size: 19px; }
+  .page-footer { gap: 15px; font-size: 10px; }
+  .reading-status { padding: 10px 13px; font-size: 11px; }
+}

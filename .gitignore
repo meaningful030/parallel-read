@@ -1,0 +1,12 @@
+# Local-only files: handoff notes, packaged ZIPs, unzipped install folders, tool settings
+/HANDOFF.md
+/給另一個AI的提示詞.md
+/*.zip
+/parallel-read-*/
+/.claude/
+
+# OS and tool clutter
+Thumbs.db
+desktop.ini
+.DS_Store
+__pycache__/
